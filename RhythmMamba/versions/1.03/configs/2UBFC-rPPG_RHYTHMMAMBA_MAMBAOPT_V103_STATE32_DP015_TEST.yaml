@@ -1,0 +1,15 @@
+BASE: ['2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102_TEST.yaml']
+TRAIN:
+  MODEL_FILE_NAME: UBFC_UBFC_UBFC_RhythmMamba_MambaOpt_v103_State32DP015
+MODEL:
+  RHYTHMMAMBA:
+    DEPTH: 24
+    EMBED_DIM: 96
+    MLP_RATIO: 2
+    DROP_PATH_RATE: 0.15
+    MAMBA_D_STATE: 32
+    MAMBA_D_CONV: 4
+    MAMBA_EXPAND: 2
+    MULTI_TEMPORAL_PATHS: 3
+INFERENCE:
+  MODEL_PATH: "/experiment0/user/PreTrainedModels/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse/UBFC_UBFC_UBFC_RhythmMamba_MambaOpt_v103_State32DP015_Epoch29.pth"

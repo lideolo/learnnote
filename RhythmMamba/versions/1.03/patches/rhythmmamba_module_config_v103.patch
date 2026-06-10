@@ -1,0 +1,425 @@
+diff --git a/config.py b/config.py
+index 5607491..b22dae3 100644
+--- a/config.py
++++ b/config.py
+@@ -312,6 +312,19 @@ _C.MODEL.PHYSFORMER.NUM_HEADS = 4
+ _C.MODEL.PHYSFORMER.NUM_LAYERS = 12
+ _C.MODEL.PHYSFORMER.THETA = 0.7
+ 
++# -----------------------------------------------------------------------------
++# Model Settings for RhythmMamba
++# -----------------------------------------------------------------------------
++_C.MODEL.RHYTHMMAMBA = CN()
++_C.MODEL.RHYTHMMAMBA.DEPTH = 24
++_C.MODEL.RHYTHMMAMBA.EMBED_DIM = 96
++_C.MODEL.RHYTHMMAMBA.MLP_RATIO = 2
++_C.MODEL.RHYTHMMAMBA.DROP_PATH_RATE = 0.1
++_C.MODEL.RHYTHMMAMBA.MAMBA_D_STATE = 48
++_C.MODEL.RHYTHMMAMBA.MAMBA_D_CONV = 4
++_C.MODEL.RHYTHMMAMBA.MAMBA_EXPAND = 2
++_C.MODEL.RHYTHMMAMBA.MULTI_TEMPORAL_PATHS = 3
++
+ # -----------------------------------------------------------------------------
+ # Inference settings
+ # -----------------------------------------------------------------------------
+@@ -555,4 +568,3 @@ def get_config(args):
+ 
+     return config
+ 
+-
+diff --git a/neural_methods/model/RhythmMamba.py b/neural_methods/model/RhythmMamba.py
+index 3589ab8..22c1a8f 100644
+--- a/neural_methods/model/RhythmMamba.py
++++ b/neural_methods/model/RhythmMamba.py
+@@ -161,14 +161,24 @@ class Block_mamba(nn.Module):
+     def __init__(self, 
+         dim, 
+         mlp_ratio,
++        mamba_d_state=48,
++        mamba_d_conv=4,
++        mamba_expand=2,
++        multi_temporal_paths=3,
+         drop_path=0., 
+         norm_layer=nn.LayerNorm, 
+     ):
+         super().__init__()
+         self.norm1 = norm_layer(dim)
+         self.norm2 = norm_layer(dim)
+-        self.attn = MambaLayer(dim)
++        self.attn = MambaLayer(
++            dim,
++            d_state=mamba_d_state,
++            d_conv=mamba_d_conv,
++            expand=mamba_expand,
++        )
+         self.mlp = Frequencydomain_FFN(dim,mlp_ratio)
++        self.multi_temporal_paths = multi_temporal_paths
+         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
+         self.apply(self._init_weights)
+ 
+@@ -190,8 +200,10 @@ class Block_mamba(nn.Module):
+     def forward(self, x):
+         B, D, C = x.size()
+         #Multi-temporal Parallelization
+-        path = 3
++        path = self.multi_temporal_paths
+         segment = 2**(path-1)
++        if D % segment != 0:
++            raise ValueError(f"Temporal length {D} must be divisible by segment {segment}.")
+         tt = D // segment
+         x_r = x.repeat(segment,1,1)
+         x_o = x_r.clone()
+@@ -262,6 +274,10 @@ class RhythmMamba(nn.Module):
+                  mlp_ratio=2,
+                  drop_rate=0.,
+                  drop_path_rate=0.1,
++                 mamba_d_state=48,
++                 mamba_d_conv=4,
++                 mamba_expand=2,
++                 multi_temporal_paths=3,
+                  initializer_cfg=None,
+                  device=None,
+                  dtype=None,
+@@ -285,6 +301,10 @@ class RhythmMamba(nn.Module):
+         self.blocks = nn.ModuleList([Block_mamba(
+             dim = embed_dim, 
+             mlp_ratio = mlp_ratio,
++            mamba_d_state=mamba_d_state,
++            mamba_d_conv=mamba_d_conv,
++            mamba_expand=mamba_expand,
++            multi_temporal_paths=multi_temporal_paths,
+             drop_path=inter_dpr[i], 
+             norm_layer=nn.LayerNorm,)
+         for i in range(depth)])
+@@ -327,4 +347,4 @@ class RhythmMamba(nn.Module):
+         rPPG = self.ConvBlockLast(rPPG)    #[N, 1, D]
+         rPPG = rPPG.squeeze(1)
+ 
+-        return rPPG
+\ No newline at end of file
++        return rPPG
+diff --git a/neural_methods/trainer/RhythmMambaTrainer.py b/neural_methods/trainer/RhythmMambaTrainer.py
+index 8074086..10528c1 100644
+--- a/neural_methods/trainer/RhythmMambaTrainer.py
++++ b/neural_methods/trainer/RhythmMambaTrainer.py
+@@ -11,6 +11,20 @@ from neural_methods.model.RhythmMamba import  RhythmMamba
+ from neural_methods.trainer.BaseTrainer import BaseTrainer
+ from neural_methods.loss.TorchLossComputer import Hybrid_Loss
+ 
++def build_rhythmmamba_model(config):
++    model_config = config.MODEL.RHYTHMMAMBA
++    return RhythmMamba(
++        depth=model_config.DEPTH,
++        embed_dim=model_config.EMBED_DIM,
++        mlp_ratio=model_config.MLP_RATIO,
++        drop_rate=config.MODEL.DROP_RATE,
++        drop_path_rate=model_config.DROP_PATH_RATE,
++        mamba_d_state=model_config.MAMBA_D_STATE,
++        mamba_d_conv=model_config.MAMBA_D_CONV,
++        mamba_expand=model_config.MAMBA_EXPAND,
++        multi_temporal_paths=model_config.MULTI_TEMPORAL_PATHS,
++    )
++
+ class RhythmMambaTrainer(BaseTrainer):
+ 
+     def __init__(self, config, data_loader):
+@@ -31,7 +45,7 @@ class RhythmMambaTrainer(BaseTrainer):
+         if config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "DiffNormalized":
+             self.diff_flag = 1
+         if config.TOOLBOX_MODE == "train_and_test":
+-            self.model = RhythmMamba().to(self.device)
++            self.model = build_rhythmmamba_model(config).to(self.device)
+             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
+             self.num_train_batches = len(data_loader["train"])
+             self.criterion = Hybrid_Loss()
+@@ -41,7 +55,7 @@ class RhythmMambaTrainer(BaseTrainer):
+             self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+                 self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
+         elif config.TOOLBOX_MODE == "only_test":
+-            self.model = RhythmMamba().to(self.device)
++            self.model = build_rhythmmamba_model(config).to(self.device)
+             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
+         else:
+             raise ValueError("EfficientPhys trainer initialized in incorrect toolbox mode!")
+@@ -66,10 +80,10 @@ class RhythmMambaTrainer(BaseTrainer):
+                 if self.config.TRAIN.AUG :
+                     data,labels = self.data_augmentation(data,labels,batch[2],batch[3])
+ 
+-                data = data.to(self.device)
+-                labels = labels.to(self.device)
++                data = data.to(self.device, non_blocking=True)
++                labels = labels.to(self.device, non_blocking=True)
+ 
+-                self.optimizer.zero_grad()
++                self.optimizer.zero_grad(set_to_none=True)
+                 pred_ppg = self.model(data)
+                 pred_ppg = (pred_ppg-torch.mean(pred_ppg, axis=-1).view(-1, 1))/torch.std(pred_ppg, axis=-1).view(-1, 1)    # normalize
+ 
+@@ -110,7 +124,8 @@ class RhythmMambaTrainer(BaseTrainer):
+             vbar = tqdm(data_loader["valid"], ncols=80)
+             for valid_idx, valid_batch in enumerate(vbar):
+                 vbar.set_description("Validation")
+-                data_valid, labels_valid = valid_batch[0].to(self.device), valid_batch[1].to(self.device)
++                data_valid = valid_batch[0].to(self.device, non_blocking=True)
++                labels_valid = valid_batch[1].to(self.device, non_blocking=True)
+                 N, D, C, H, W = data_valid.shape
+                 pred_ppg_valid = self.model(data_valid)
+                 pred_ppg_valid = (pred_ppg_valid-torch.mean(pred_ppg_valid, axis=-1).view(-1, 1))/torch.std(pred_ppg_valid, axis=-1).view(-1, 1)    # normalize
+@@ -157,7 +172,8 @@ class RhythmMambaTrainer(BaseTrainer):
+             for _, test_batch in enumerate(data_loader['test']):
+                 batch_size = test_batch[0].shape[0]
+                 chunk_len = self.chunk_len
+-                data_test, labels_test = test_batch[0].to(self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
++                data_test = test_batch[0].to(self.config.DEVICE, non_blocking=True)
++                labels_test = test_batch[1].to(self.config.DEVICE, non_blocking=True)
+                 pred_ppg_test = self.model(data_test)
+                 pred_ppg_test = (pred_ppg_test-torch.mean(pred_ppg_test, axis=-1).view(-1, 1))/torch.std(pred_ppg_test, axis=-1).view(-1, 1)    # normalize
+                 labels_test = labels_test.view(-1, 1)
+@@ -185,14 +201,13 @@ class RhythmMambaTrainer(BaseTrainer):
+ 
+     def data_augmentation(self,data,labels,index1,index2):
+         N, D, C, H, W = data.shape
+-        data_aug = np.zeros((N, D, C, H, W))
+-        labels_aug = np.zeros((N, D))
++        data_aug = data.clone()
++        labels_aug = labels.clone()
+         rand1_vals = np.random.random(N)
+         rand2_vals = np.random.random(N)
+         for idx in range(N):
+             index = index1[idx] + index2[idx]
+             rand1 = rand1_vals[idx]
+-            rand2 = rand2_vals[idx]
+             if rand1 < 0.5 :
+                 if index in self.data_dict:
+                     gt_hr_fft = self.data_dict[index]
+@@ -201,26 +216,25 @@ class RhythmMambaTrainer(BaseTrainer):
+                     self.data_dict[index] = gt_hr_fft
+                     
+                 if gt_hr_fft > 90: 
+-                    rand3 = random.randint(0, D//2-1)
++                    max_start = max(0, D - (D // 2 + 1))
++                    rand3 = random.randint(0, max_start)
+                     even_indices = torch.arange(0, D, 2)
+-                    odd_indices = even_indices + 1
+-                    data_aug[:, even_indices, :, :, :] = data[:, rand3 + even_indices// 2, :, :, :]
+-                    labels_aug[:, even_indices] = labels[:, rand3 + even_indices // 2]
+-                    data_aug[:, odd_indices, :, :, :] = (data[:, rand3 + odd_indices // 2, :, :, :] + data[:, rand3 + (odd_indices // 2) + 1, :, :, :]) / 2
+-                    labels_aug[:, odd_indices] = (labels[:, rand3 + odd_indices // 2] + labels[:, rand3 + (odd_indices // 2) + 1]) / 2
++                    odd_indices = torch.arange(1, D, 2)
++                    data_aug[idx, even_indices, :, :, :] = data[idx, rand3 + even_indices // 2, :, :, :]
++                    labels_aug[idx, even_indices] = labels[idx, rand3 + even_indices // 2]
++                    data_aug[idx, odd_indices, :, :, :] = (data[idx, rand3 + odd_indices // 2, :, :, :] + data[idx, rand3 + (odd_indices // 2) + 1, :, :, :]) / 2
++                    labels_aug[idx, odd_indices] = (labels[idx, rand3 + odd_indices // 2] + labels[idx, rand3 + (odd_indices // 2) + 1]) / 2
+                 elif gt_hr_fft < 75 :
+-                    data_aug[:, :D//2, :, :, :] = data[:, ::2, :, :, :]
+-                    labels_aug[:, :D//2] = labels[:, ::2]
+-                    data_aug[:, D//2:, :, :, :] = data_aug[:, :D//2, :, :, :]
+-                    labels_aug[:, D//2:] = labels_aug[:, :D//2]
++                    data_downsampled = data[idx, ::2, :, :, :]
++                    labels_downsampled = labels[idx, ::2]
++                    data_aug[idx] = torch.cat([data_downsampled, data_downsampled], dim=0)[:D]
++                    labels_aug[idx] = torch.cat([labels_downsampled, labels_downsampled], dim=0)[:D]
+                 else :
+                     data_aug[idx] = data[idx]
+-                    labels_aug[idx] = labels[idx]                                      
++                    labels_aug[idx] = labels[idx]
+             else :
+                 data_aug[idx] = data[idx]
+                 labels_aug[idx] = labels[idx]
+-        data_aug = torch.tensor(data_aug).float()
+-        labels_aug = torch.tensor(labels_aug).float()
+-        if rand2 < 0.5:
+-            data_aug = torch.flip(data_aug, dims=[4])
+-        return data_aug, labels_aug
+\ No newline at end of file
++            if rand2_vals[idx] < 0.5:
++                data_aug[idx] = torch.flip(data_aug[idx], dims=[3])
++        return data_aug, labels_aug
+diff --git a/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_DEFAULT.yaml b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_DEFAULT.yaml
+new file mode 100644
+index 0000000..3512e9e
+--- /dev/null
++++ b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_DEFAULT.yaml
+@@ -0,0 +1,25 @@
++BASE: ['2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml']
++TRAIN:
++  MODEL_FILE_NAME: UBFC_UBFC_UBFC_RhythmMamba_MambaOpt_v103_ValDefault
++  DATA:
++    BEGIN: 0.0
++    END: 0.60
++VALID:
++  DATA:
++    BEGIN: 0.60
++    END: 0.72
++TEST:
++  USE_LAST_EPOCH: False
++  DATA:
++    BEGIN: 0.60
++    END: 0.72
++MODEL:
++  RHYTHMMAMBA:
++    DEPTH: 24
++    EMBED_DIM: 96
++    MLP_RATIO: 2
++    DROP_PATH_RATE: 0.1
++    MAMBA_D_STATE: 48
++    MAMBA_D_CONV: 4
++    MAMBA_EXPAND: 2
++    MULTI_TEMPORAL_PATHS: 3
+diff --git a/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_STATE32_DP015.yaml b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_STATE32_DP015.yaml
+new file mode 100644
+index 0000000..9859762
+--- /dev/null
++++ b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_STATE32_DP015.yaml
+@@ -0,0 +1,25 @@
++BASE: ['2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml']
++TRAIN:
++  MODEL_FILE_NAME: UBFC_UBFC_UBFC_RhythmMamba_MambaOpt_v103_ValState32DP015
++  DATA:
++    BEGIN: 0.0
++    END: 0.60
++VALID:
++  DATA:
++    BEGIN: 0.60
++    END: 0.72
++TEST:
++  USE_LAST_EPOCH: False
++  DATA:
++    BEGIN: 0.60
++    END: 0.72
++MODEL:
++  RHYTHMMAMBA:
++    DEPTH: 24
++    EMBED_DIM: 96
++    MLP_RATIO: 2
++    DROP_PATH_RATE: 0.15
++    MAMBA_D_STATE: 32
++    MAMBA_D_CONV: 4
++    MAMBA_EXPAND: 2
++    MULTI_TEMPORAL_PATHS: 3
+diff --git a/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_PATH2_DP015.yaml b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_PATH2_DP015.yaml
+new file mode 100644
+index 0000000..d495756
+--- /dev/null
++++ b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_PATH2_DP015.yaml
+@@ -0,0 +1,25 @@
++BASE: ['2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml']
++TRAIN:
++  MODEL_FILE_NAME: UBFC_UBFC_UBFC_RhythmMamba_MambaOpt_v103_ValPath2DP015
++  DATA:
++    BEGIN: 0.0
++    END: 0.60
++VALID:
++  DATA:
++    BEGIN: 0.60
++    END: 0.72
++TEST:
++  USE_LAST_EPOCH: False
++  DATA:
++    BEGIN: 0.60
++    END: 0.72
++MODEL:
++  RHYTHMMAMBA:
++    DEPTH: 24
++    EMBED_DIM: 96
++    MLP_RATIO: 2
++    DROP_PATH_RATE: 0.15
++    MAMBA_D_STATE: 48
++    MAMBA_D_CONV: 4
++    MAMBA_EXPAND: 2
++    MULTI_TEMPORAL_PATHS: 2
+diff --git a/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_STATE32_DP015.yaml b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_STATE32_DP015.yaml
+new file mode 100644
+index 0000000..fc6d963
+--- /dev/null
++++ b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_STATE32_DP015.yaml
+@@ -0,0 +1,15 @@
++BASE: ['2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml']
++TRAIN:
++  MODEL_FILE_NAME: UBFC_UBFC_UBFC_RhythmMamba_MambaOpt_v103_State32DP015
++TEST:
++  USE_LAST_EPOCH: True
++MODEL:
++  RHYTHMMAMBA:
++    DEPTH: 24
++    EMBED_DIM: 96
++    MLP_RATIO: 2
++    DROP_PATH_RATE: 0.15
++    MAMBA_D_STATE: 32
++    MAMBA_D_CONV: 4
++    MAMBA_EXPAND: 2
++    MULTI_TEMPORAL_PATHS: 3
+diff --git a/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_STATE32_DP015_TEST.yaml b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_STATE32_DP015_TEST.yaml
+new file mode 100644
+index 0000000..ce1da9c
+--- /dev/null
++++ b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_STATE32_DP015_TEST.yaml
+@@ -0,0 +1,15 @@
++BASE: ['2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102_TEST.yaml']
++TRAIN:
++  MODEL_FILE_NAME: UBFC_UBFC_UBFC_RhythmMamba_MambaOpt_v103_State32DP015
++MODEL:
++  RHYTHMMAMBA:
++    DEPTH: 24
++    EMBED_DIM: 96
++    MLP_RATIO: 2
++    DROP_PATH_RATE: 0.15
++    MAMBA_D_STATE: 32
++    MAMBA_D_CONV: 4
++    MAMBA_EXPAND: 2
++    MULTI_TEMPORAL_PATHS: 3
++INFERENCE:
++  MODEL_PATH: "/experiment0/user/PreTrainedModels/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse/UBFC_UBFC_UBFC_RhythmMamba_MambaOpt_v103_State32DP015_Epoch29.pth"
+diff --git a/root/RhythmMamba-main/test_rhythmmamba_configurable.py b/root/RhythmMamba-main/test_rhythmmamba_configurable.py
+new file mode 100644
+index 0000000..8d72707
+--- /dev/null
++++ b/root/RhythmMamba-main/test_rhythmmamba_configurable.py
+@@ -0,0 +1,47 @@
++import unittest
++
++import torch
++
++from neural_methods.model.RhythmMamba import RhythmMamba
++
++
++class RhythmMambaConfigurableTest(unittest.TestCase):
++    @unittest.skipUnless(torch.cuda.is_available(), "Mamba forward requires CUDA in this environment.")
++    def test_custom_mamba_parameters_keep_output_shape(self):
++        model = RhythmMamba(
++            depth=2,
++            embed_dim=48,
++            mlp_ratio=2,
++            drop_path_rate=0.05,
++            mamba_d_state=16,
++            mamba_d_conv=3,
++            mamba_expand=1,
++            multi_temporal_paths=2,
++        ).cuda()
++        model.eval()
++        data = torch.randn(1, 32, 3, 64, 64, device="cuda")
++
++        with torch.no_grad():
++            output = model(data)
++
++        self.assertEqual(output.shape, (1, 32))
++
++    def test_invalid_temporal_path_raises_clear_error(self):
++        model = RhythmMamba(
++            depth=1,
++            embed_dim=48,
++            mamba_d_state=16,
++            mamba_d_conv=3,
++            mamba_expand=1,
++            multi_temporal_paths=4,
++        )
++        model.eval()
++        data = torch.randn(1, 20, 3, 64, 64)
++
++        with self.assertRaisesRegex(ValueError, "Temporal length"):
++            with torch.no_grad():
++                model(data)
++
++
++if __name__ == "__main__":
++    unittest.main()

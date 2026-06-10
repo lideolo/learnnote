@@ -1,0 +1,37 @@
+Capture time: 2026-06-10T17:57:03+08:00
+
+RhythmMamba-main status:
+## main...origin/main
+ M "RTX5070_RhythmMamba_UBFC\345\244\215\347\216\260\345\256\214\346\225\264\350\257\264\346\230\216_260528.md"
+ D RhythmMamba_PPT_outline.md
+ D RhythmMamba_Reproduction_Guide.md
+ D RhythmMamba_baseline_comparison_and_improvement.md
+ M config.py
+ M main.py
+ M neural_methods/model/RhythmMamba.py
+ M neural_methods/trainer/RhythmMambaTrainer.py
+?? RhythmMamba.pdf
+?? "UBFC\345\256\236\351\252\214\345\217\202\346\225\260\344\270\216\345\216\237\350\256\272\346\226\207\345\257\271\346\257\224.md"
+?? configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml
+?? configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102_TEST.yaml
+?? configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_STATE32_DP015.yaml
+?? configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_STATE32_DP015_TEST.yaml
+?? configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_DEFAULT.yaml
+?? configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_PATH2_DP015.yaml
+?? configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_MAMBAOPT_V103_VAL_STATE32_DP015.yaml
+?? configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_REAL_DATALOADER_OPT.yaml
+?? configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_REAL_DATALOADER_OPT_RUN2.yaml
+?? configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_REAL_DATALOADER_OPT_RUN2_TEST.yaml
+?? test_rhythmmamba_augmentation.py
+?? test_rhythmmamba_configurable.py
+?? tools/
+?? "\346\225\260\346\215\256\351\233\206\344\270\213\350\275\275\346\226\271\345\274\217.md"
+?? "\347\234\237\345\256\236\346\225\260\346\215\256\351\233\206\345\244\215\347\216\260\345\256\236\351\252\214\346\201\242\345\244\215\344\270\216\344\277\256\346\224\271\346\211\213\345\206\214.md"
+
+gittohub status:
+## main...origin/main [ahead 2]
+?? .vscode/
+?? RhythmMamba/versions/1.03/
+
+Final checkpoint: /experiment0/user/PreTrainedModels/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse/UBFC_UBFC_UBFC_RhythmMamba_MambaOpt_v103_State32DP015_Epoch29.pth
+-rw-r--r-- 1 root root 19M Jun 10 17:54 /experiment0/user/PreTrainedModels/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse/UBFC_UBFC_UBFC_RhythmMamba_MambaOpt_v103_State32DP015_Epoch29.pth
