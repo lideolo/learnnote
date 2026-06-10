@@ -1,0 +1,417 @@
+diff --git a/neural_methods/trainer/RhythmMambaTrainer.py b/neural_methods/trainer/RhythmMambaTrainer.py
+index 8074086..e115214 100644
+--- a/neural_methods/trainer/RhythmMambaTrainer.py
++++ b/neural_methods/trainer/RhythmMambaTrainer.py
+@@ -66,10 +66,10 @@ class RhythmMambaTrainer(BaseTrainer):
+                 if self.config.TRAIN.AUG :
+                     data,labels = self.data_augmentation(data,labels,batch[2],batch[3])
+ 
+-                data = data.to(self.device)
+-                labels = labels.to(self.device)
++                data = data.to(self.device, non_blocking=True)
++                labels = labels.to(self.device, non_blocking=True)
+ 
+-                self.optimizer.zero_grad()
++                self.optimizer.zero_grad(set_to_none=True)
+                 pred_ppg = self.model(data)
+                 pred_ppg = (pred_ppg-torch.mean(pred_ppg, axis=-1).view(-1, 1))/torch.std(pred_ppg, axis=-1).view(-1, 1)    # normalize
+ 
+@@ -110,7 +110,8 @@ class RhythmMambaTrainer(BaseTrainer):
+             vbar = tqdm(data_loader["valid"], ncols=80)
+             for valid_idx, valid_batch in enumerate(vbar):
+                 vbar.set_description("Validation")
+-                data_valid, labels_valid = valid_batch[0].to(self.device), valid_batch[1].to(self.device)
++                data_valid = valid_batch[0].to(self.device, non_blocking=True)
++                labels_valid = valid_batch[1].to(self.device, non_blocking=True)
+                 N, D, C, H, W = data_valid.shape
+                 pred_ppg_valid = self.model(data_valid)
+                 pred_ppg_valid = (pred_ppg_valid-torch.mean(pred_ppg_valid, axis=-1).view(-1, 1))/torch.std(pred_ppg_valid, axis=-1).view(-1, 1)    # normalize
+@@ -157,7 +158,8 @@ class RhythmMambaTrainer(BaseTrainer):
+             for _, test_batch in enumerate(data_loader['test']):
+                 batch_size = test_batch[0].shape[0]
+                 chunk_len = self.chunk_len
+-                data_test, labels_test = test_batch[0].to(self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
++                data_test = test_batch[0].to(self.config.DEVICE, non_blocking=True)
++                labels_test = test_batch[1].to(self.config.DEVICE, non_blocking=True)
+                 pred_ppg_test = self.model(data_test)
+                 pred_ppg_test = (pred_ppg_test-torch.mean(pred_ppg_test, axis=-1).view(-1, 1))/torch.std(pred_ppg_test, axis=-1).view(-1, 1)    # normalize
+                 labels_test = labels_test.view(-1, 1)
+@@ -185,14 +187,13 @@ class RhythmMambaTrainer(BaseTrainer):
+ 
+     def data_augmentation(self,data,labels,index1,index2):
+         N, D, C, H, W = data.shape
+-        data_aug = np.zeros((N, D, C, H, W))
+-        labels_aug = np.zeros((N, D))
++        data_aug = data.clone()
++        labels_aug = labels.clone()
+         rand1_vals = np.random.random(N)
+         rand2_vals = np.random.random(N)
+         for idx in range(N):
+             index = index1[idx] + index2[idx]
+             rand1 = rand1_vals[idx]
+-            rand2 = rand2_vals[idx]
+             if rand1 < 0.5 :
+                 if index in self.data_dict:
+                     gt_hr_fft = self.data_dict[index]
+@@ -201,26 +202,25 @@ class RhythmMambaTrainer(BaseTrainer):
+                     self.data_dict[index] = gt_hr_fft
+                     
+                 if gt_hr_fft > 90: 
+-                    rand3 = random.randint(0, D//2-1)
++                    max_start = max(0, D - (D // 2 + 1))
++                    rand3 = random.randint(0, max_start)
+                     even_indices = torch.arange(0, D, 2)
+-                    odd_indices = even_indices + 1
+-                    data_aug[:, even_indices, :, :, :] = data[:, rand3 + even_indices// 2, :, :, :]
+-                    labels_aug[:, even_indices] = labels[:, rand3 + even_indices // 2]
+-                    data_aug[:, odd_indices, :, :, :] = (data[:, rand3 + odd_indices // 2, :, :, :] + data[:, rand3 + (odd_indices // 2) + 1, :, :, :]) / 2
+-                    labels_aug[:, odd_indices] = (labels[:, rand3 + odd_indices // 2] + labels[:, rand3 + (odd_indices // 2) + 1]) / 2
++                    odd_indices = torch.arange(1, D, 2)
++                    data_aug[idx, even_indices, :, :, :] = data[idx, rand3 + even_indices // 2, :, :, :]
++                    labels_aug[idx, even_indices] = labels[idx, rand3 + even_indices // 2]
++                    data_aug[idx, odd_indices, :, :, :] = (data[idx, rand3 + odd_indices // 2, :, :, :] + data[idx, rand3 + (odd_indices // 2) + 1, :, :, :]) / 2
++                    labels_aug[idx, odd_indices] = (labels[idx, rand3 + odd_indices // 2] + labels[idx, rand3 + (odd_indices // 2) + 1]) / 2
+                 elif gt_hr_fft < 75 :
+-                    data_aug[:, :D//2, :, :, :] = data[:, ::2, :, :, :]
+-                    labels_aug[:, :D//2] = labels[:, ::2]
+-                    data_aug[:, D//2:, :, :, :] = data_aug[:, :D//2, :, :, :]
+-                    labels_aug[:, D//2:] = labels_aug[:, :D//2]
++                    data_downsampled = data[idx, ::2, :, :, :]
++                    labels_downsampled = labels[idx, ::2]
++                    data_aug[idx] = torch.cat([data_downsampled, data_downsampled], dim=0)[:D]
++                    labels_aug[idx] = torch.cat([labels_downsampled, labels_downsampled], dim=0)[:D]
+                 else :
+                     data_aug[idx] = data[idx]
+-                    labels_aug[idx] = labels[idx]                                      
++                    labels_aug[idx] = labels[idx]
+             else :
+                 data_aug[idx] = data[idx]
+                 labels_aug[idx] = labels[idx]
+-        data_aug = torch.tensor(data_aug).float()
+-        labels_aug = torch.tensor(labels_aug).float()
+-        if rand2 < 0.5:
+-            data_aug = torch.flip(data_aug, dims=[4])
+-        return data_aug, labels_aug
+\ No newline at end of file
++            if rand2_vals[idx] < 0.5:
++                data_aug[idx] = torch.flip(data_aug[idx], dims=[3])
++        return data_aug, labels_aug
+diff --git a/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml
+new file mode 100644
+index 0000000..4768fd0
+--- /dev/null
++++ b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml
+@@ -0,0 +1,104 @@
++BASE: ['']
++TOOLBOX_MODE: "train_and_test"
++TRAIN:
++  BATCH_SIZE: 8
++  EPOCHS: 30
++  LR: 3e-4
++  MODEL_FILE_NAME: UBFC_UBFC_UBFC_RhythmMamba_AugFix_v102
++  AUG: 1
++  DATA:
++    FS: 30
++    DATASET: UBFC-rPPG
++    DO_PREPROCESS: False
++    DATA_FORMAT: NDCHW
++    DATA_PATH: "/root/Datasets/UBFC/"
++    CACHED_PATH: "/root/RhythmMamba_Preprocessed/UBFC/"
++    EXP_DATA_NAME: ""
++    BEGIN: 0.0
++    END: 0.72
++    PREPROCESS :
++      DATA_TYPE: [ 'Standardized' ]
++      LABEL_TYPE: Standardized
++      DO_CHUNK: True
++      CHUNK_LENGTH: 160
++      CROP_FACE:
++        DO_CROP_FACE: True
++        USE_LARGE_FACE_BOX: True
++        LARGE_BOX_COEF: 1.5
++        DETECTION:
++          DO_DYNAMIC_DETECTION: False
++          DYNAMIC_DETECTION_FREQUENCY : 30
++          USE_MEDIAN_FACE_BOX: False
++      RESIZE:
++        H: 128
++        W: 128
++VALID:
++  DATA:
++    FS: 30
++    DATASET: UBFC-rPPG
++    DO_PREPROCESS: False
++    DATA_FORMAT: NDCHW
++    DATA_PATH: "/root/Datasets/UBFC/"
++    CACHED_PATH: "/root/RhythmMamba_Preprocessed/UBFC/"
++    EXP_DATA_NAME: ""
++    BEGIN: 0.72
++    END: 1.0
++    PREPROCESS:
++      DATA_TYPE: [ 'Standardized' ]
++      LABEL_TYPE: Standardized
++      DO_CHUNK: True
++      CHUNK_LENGTH: 160
++      CROP_FACE:
++        DO_CROP_FACE: True
++        USE_LARGE_FACE_BOX: True
++        LARGE_BOX_COEF: 1.5
++        DETECTION:
++          DO_DYNAMIC_DETECTION: False
++          DYNAMIC_DETECTION_FREQUENCY : 30
++          USE_MEDIAN_FACE_BOX: False
++      RESIZE:
++        H: 128
++        W: 128
++TEST:
++  METRICS: ['MAE','RMSE','MAPE','Pearson','SNR']
++  USE_LAST_EPOCH: True
++  DATA:
++    FS: 30
++    DATASET: UBFC-rPPG
++    DO_PREPROCESS: False
++    DATA_FORMAT: NDCHW
++    DATA_PATH: "/root/Datasets/UBFC/"
++    CACHED_PATH: "/root/RhythmMamba_Preprocessed/UBFC/"
++    EXP_DATA_NAME: ""
++    BEGIN: 0.72
++    END: 1.0
++    PREPROCESS:
++      DATA_TYPE: [ 'Standardized' ]
++      LABEL_TYPE: Standardized
++      DO_CHUNK: True
++      CHUNK_LENGTH: 160
++      CROP_FACE:
++        DO_CROP_FACE: True
++        USE_LARGE_FACE_BOX: True
++        LARGE_BOX_COEF: 1.5
++        DETECTION:
++          DO_DYNAMIC_DETECTION: False
++          DYNAMIC_DETECTION_FREQUENCY : 30
++          USE_MEDIAN_FACE_BOX: False
++      RESIZE:
++        H: 128
++        W: 128
++DEVICE: cuda:0
++NUM_OF_GPU_TRAIN: 1
++LOG:
++  PATH: runs/exp
++MODEL:
++  DROP_RATE: 0.2
++  NAME: RhythmMamba
++INFERENCE:
++  BATCH_SIZE: 2
++  EVALUATION_METHOD: "FFT"
++  EVALUATION_WINDOW:
++    USE_SMALLER_WINDOW: False
++    WINDOW_SIZE: 10
++  MODEL_PATH:   ""
+diff --git a/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102_TEST.yaml b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102_TEST.yaml
+new file mode 100644
+index 0000000..8257db0
+--- /dev/null
++++ b/root/RhythmMamba-main/configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102_TEST.yaml
+@@ -0,0 +1,104 @@
++BASE: ['']
++TOOLBOX_MODE: "only_test"
++TRAIN:
++  BATCH_SIZE: 8
++  EPOCHS: 30
++  LR: 3e-4
++  MODEL_FILE_NAME: UBFC_UBFC_UBFC_RhythmMamba_AugFix_v102
++  AUG: 1
++  DATA:
++    FS: 30
++    DATASET: UBFC-rPPG
++    DO_PREPROCESS: False
++    DATA_FORMAT: NDCHW
++    DATA_PATH: "/root/Datasets/UBFC/"
++    CACHED_PATH: "/root/RhythmMamba_Preprocessed/UBFC/"
++    EXP_DATA_NAME: ""
++    BEGIN: 0.0
++    END: 0.72
++    PREPROCESS :
++      DATA_TYPE: [ 'Standardized' ]
++      LABEL_TYPE: Standardized
++      DO_CHUNK: True
++      CHUNK_LENGTH: 160
++      CROP_FACE:
++        DO_CROP_FACE: True
++        USE_LARGE_FACE_BOX: True
++        LARGE_BOX_COEF: 1.5
++        DETECTION:
++          DO_DYNAMIC_DETECTION: False
++          DYNAMIC_DETECTION_FREQUENCY : 30
++          USE_MEDIAN_FACE_BOX: False
++      RESIZE:
++        H: 128
++        W: 128
++VALID:
++  DATA:
++    FS: 30
++    DATASET: UBFC-rPPG
++    DO_PREPROCESS: False
++    DATA_FORMAT: NDCHW
++    DATA_PATH: "/root/Datasets/UBFC/"
++    CACHED_PATH: "/root/RhythmMamba_Preprocessed/UBFC/"
++    EXP_DATA_NAME: ""
++    BEGIN: 0.72
++    END: 1.0
++    PREPROCESS:
++      DATA_TYPE: [ 'Standardized' ]
++      LABEL_TYPE: Standardized
++      DO_CHUNK: True
++      CHUNK_LENGTH: 160
++      CROP_FACE:
++        DO_CROP_FACE: True
++        USE_LARGE_FACE_BOX: True
++        LARGE_BOX_COEF: 1.5
++        DETECTION:
++          DO_DYNAMIC_DETECTION: False
++          DYNAMIC_DETECTION_FREQUENCY : 30
++          USE_MEDIAN_FACE_BOX: False
++      RESIZE:
++        H: 128
++        W: 128
++TEST:
++  METRICS: ['MAE','RMSE','MAPE','Pearson','SNR']
++  USE_LAST_EPOCH: True
++  DATA:
++    FS: 30
++    DATASET: UBFC-rPPG
++    DO_PREPROCESS: False
++    DATA_FORMAT: NDCHW
++    DATA_PATH: "/root/Datasets/UBFC/"
++    CACHED_PATH: "/root/RhythmMamba_Preprocessed/UBFC/"
++    EXP_DATA_NAME: ""
++    BEGIN: 0.72
++    END: 1.0
++    PREPROCESS:
++      DATA_TYPE: [ 'Standardized' ]
++      LABEL_TYPE: Standardized
++      DO_CHUNK: True
++      CHUNK_LENGTH: 160
++      CROP_FACE:
++        DO_CROP_FACE: True
++        USE_LARGE_FACE_BOX: True
++        LARGE_BOX_COEF: 1.5
++        DETECTION:
++          DO_DYNAMIC_DETECTION: False
++          DYNAMIC_DETECTION_FREQUENCY : 30
++          USE_MEDIAN_FACE_BOX: False
++      RESIZE:
++        H: 128
++        W: 128
++DEVICE: cuda:0
++NUM_OF_GPU_TRAIN: 1
++LOG:
++  PATH: runs/exp
++MODEL:
++  DROP_RATE: 0.2
++  NAME: RhythmMamba
++INFERENCE:
++  BATCH_SIZE: 2
++  EVALUATION_METHOD: "FFT"
++  EVALUATION_WINDOW:
++    USE_SMALLER_WINDOW: False
++    WINDOW_SIZE: 10
++  MODEL_PATH:   "/experiment0/user/PreTrainedModels/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse/UBFC_UBFC_UBFC_RhythmMamba_AugFix_v102_Epoch29.pth"
+diff --git a/root/RhythmMamba-main/test_rhythmmamba_augmentation.py b/root/RhythmMamba-main/test_rhythmmamba_augmentation.py
+new file mode 100644
+index 0000000..4c60b30
+--- /dev/null
++++ b/root/RhythmMamba-main/test_rhythmmamba_augmentation.py
+@@ -0,0 +1,93 @@
++import unittest
++from types import SimpleNamespace
++from unittest.mock import patch
++
++import numpy as np
++import torch
++
++from neural_methods.trainer.RhythmMambaTrainer import RhythmMambaTrainer
++
++
++def make_trainer():
++    trainer = RhythmMambaTrainer.__new__(RhythmMambaTrainer)
++    trainer.data_dict = {}
++    trainer.diff_flag = 0
++    trainer.config = SimpleNamespace(
++        VALID=SimpleNamespace(DATA=SimpleNamespace(FS=30))
++    )
++    return trainer
++
++
++class RhythmMambaAugmentationTest(unittest.TestCase):
++    def test_high_hr_upsampling_only_changes_current_sample(self):
++        trainer = make_trainer()
++        data = torch.arange(12, dtype=torch.float32).view(2, 6, 1, 1, 1)
++        labels = torch.arange(12, dtype=torch.float32).view(2, 6)
++
++        with patch(
++            "neural_methods.trainer.RhythmMambaTrainer.np.random.random",
++            side_effect=[np.array([0.0, 1.0]), np.array([1.0, 1.0])],
++        ), patch(
++            "neural_methods.trainer.RhythmMambaTrainer.random.randint",
++            return_value=0,
++        ), patch(
++            "neural_methods.trainer.RhythmMambaTrainer.calculate_hr",
++            return_value=(100.0, 100.0),
++        ):
++            data_aug, labels_aug = trainer.data_augmentation(
++                data, labels, ["subject1", "subject2"], ["0", "0"]
++            )
++
++        expected_first = torch.tensor([0.0, 0.5, 1.0, 1.5, 2.0, 2.5])
++        self.assertTrue(torch.allclose(data_aug[0, :, 0, 0, 0], expected_first))
++        self.assertTrue(torch.allclose(labels_aug[0], expected_first))
++        self.assertTrue(torch.equal(data_aug[1], data[1]))
++        self.assertTrue(torch.equal(labels_aug[1], labels[1]))
++
++    def test_low_hr_downsampling_only_changes_current_sample(self):
++        trainer = make_trainer()
++        data = torch.arange(12, dtype=torch.float32).view(2, 6, 1, 1, 1)
++        labels = torch.arange(12, dtype=torch.float32).view(2, 6)
++
++        with patch(
++            "neural_methods.trainer.RhythmMambaTrainer.np.random.random",
++            side_effect=[np.array([0.0, 1.0]), np.array([1.0, 1.0])],
++        ), patch(
++            "neural_methods.trainer.RhythmMambaTrainer.calculate_hr",
++            return_value=(60.0, 60.0),
++        ):
++            data_aug, labels_aug = trainer.data_augmentation(
++                data, labels, ["subject1", "subject2"], ["0", "0"]
++            )
++
++        expected_first = torch.tensor([0.0, 2.0, 4.0, 0.0, 2.0, 4.0])
++        self.assertTrue(torch.equal(data_aug[0, :, 0, 0, 0], expected_first))
++        self.assertTrue(torch.equal(labels_aug[0], expected_first))
++        self.assertTrue(torch.equal(data_aug[1], data[1]))
++        self.assertTrue(torch.equal(labels_aug[1], labels[1]))
++
++    def test_horizontal_flip_is_per_sample(self):
++        trainer = make_trainer()
++        data = torch.tensor(
++            [
++                [[[[1.0, 2.0, 3.0]]]],
++                [[[[4.0, 5.0, 6.0]]]],
++            ]
++        )
++        labels = torch.tensor([[1.0], [2.0]])
++
++        with patch(
++            "neural_methods.trainer.RhythmMambaTrainer.np.random.random",
++            side_effect=[np.array([1.0, 1.0]), np.array([0.0, 1.0])],
++        ):
++            data_aug, labels_aug = trainer.data_augmentation(
++                data, labels, ["subject1", "subject2"], ["0", "0"]
++            )
++
++        self.assertTrue(torch.equal(data_aug[0, 0, 0, 0], torch.tensor([3.0, 2.0, 1.0])))
++        self.assertTrue(torch.equal(data_aug[1], data[1]))
++        self.assertTrue(torch.equal(labels_aug, labels))
++
++
++if __name__ == "__main__":
++    unittest.main()
