@@ -1,0 +1,3 @@
+BASE: ['2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102_TEST.yaml']
+INFERENCE:
+  MODEL_PATH: "/experiment0/user/PreTrainedModels/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse/UBFC_UBFC_UBFC_RhythmMamba_AugFix_v102_Epoch23.pth"

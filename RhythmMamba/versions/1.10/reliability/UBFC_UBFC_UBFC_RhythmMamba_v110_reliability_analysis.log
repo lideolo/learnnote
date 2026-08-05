@@ -1,0 +1,94 @@
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102_TEST.yaml
+Cached Data Path /root/RhythmMamba_Preprocessed/UBFC/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse
+
+File List Path /root/RhythmMamba_Preprocessed/UBFC/DataFileLists/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse_0.72_1.0.csv
+ test Preprocessed Dataset Length: 141
+
+test DataLoader: batch_size=2, num_workers=4, pin_memory=True, persistent_workers=True, prefetch_factor=2
+/root/RhythmMamba-main/neural_methods/model/RhythmMamba.py:294: UserWarning: Casting complex values to real discards the imaginary part (Triggered internally at /pytorch/aten/src/ATen/native/Copy.cpp:308.)
+  x = x.to(torch.float32)
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_LOSSOPT_V105_TIME05_FULL.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_LOSSOPT_V105_TIME05_EPOCH21_TEST.yaml
+Cached Data Path /root/RhythmMamba_Preprocessed/UBFC/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse
+
+File List Path /root/RhythmMamba_Preprocessed/UBFC/DataFileLists/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse_0.72_1.0.csv
+ test Preprocessed Dataset Length: 141
+
+test DataLoader: batch_size=2, num_workers=4, pin_memory=True, persistent_workers=True, prefetch_factor=2
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_LOSSOPT_V105_TIME05_FULL.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROI_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISG_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGP_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_FULL_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_LR1E6_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_LR1E6_V110_EPOCH2_TEST.yaml
+Cached Data Path /root/RhythmMamba_Preprocessed/UBFC/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse
+
+File List Path /root/RhythmMamba_Preprocessed/UBFC/DataFileLists/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse_0.72_1.0.csv
+ test Preprocessed Dataset Length: 141
+
+test DataLoader: batch_size=2, num_workers=4, pin_memory=True, persistent_workers=True, prefetch_factor=2
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_LOSSOPT_V105_TIME05_FULL.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROI_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISG_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGP_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_FULL_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_LR1E6_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_LR1E6_V110_EPOCH2_TEST.yaml
+Cached Data Path /root/RhythmMamba_Preprocessed/UBFC/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse
+
+File List Path /root/RhythmMamba_Preprocessed/UBFC/DataFileLists/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse_0.72_1.0.csv
+ test Preprocessed Dataset Length: 141
+
+test DataLoader: batch_size=2, num_workers=4, pin_memory=True, persistent_workers=True, prefetch_factor=2
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_LOSSOPT_V105_TIME05_FULL.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROI_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISG_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGP_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_FULL_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_LR1E6_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_LR1E6_V110_EPOCH2_TEST.yaml
+Cached Data Path /root/RhythmMamba_Preprocessed/UBFC/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse
+
+File List Path /root/RhythmMamba_Preprocessed/UBFC/DataFileLists/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse_0.72_1.0.csv
+ test Preprocessed Dataset Length: 141
+
+test DataLoader: batch_size=2, num_workers=4, pin_memory=True, persistent_workers=True, prefetch_factor=2
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_LOSSOPT_V105_TIME05_FULL.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROI_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISG_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGP_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_FULL_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_LR1E6_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_LR1E6_V110_EPOCH2_TEST.yaml
+Cached Data Path /root/RhythmMamba_Preprocessed/UBFC/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse
+
+File List Path /root/RhythmMamba_Preprocessed/UBFC/DataFileLists/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse_0.72_1.0.csv
+ test Preprocessed Dataset Length: 141
+
+test DataLoader: batch_size=2, num_workers=4, pin_memory=True, persistent_workers=True, prefetch_factor=2
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_AUGFIX_V102.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_LOSSOPT_V105_TIME05_FULL.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROI_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISG_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGP_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_FULL_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_LR1E6_V110.yaml
+=> Merging a config file from configs/train_configs/intra/2UBFC-rPPG_RHYTHMMAMBA_ROISGPM_WARM_LR1E6_V110_EPOCH2_TEST.yaml
+Cached Data Path /root/RhythmMamba_Preprocessed/UBFC/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse
+
+File List Path /root/RhythmMamba_Preprocessed/UBFC/DataFileLists/UBFC-rPPG_SizeW128_SizeH128_ClipLength160_DataTypeStandardized_DataAugNone_LabelTypeStandardized_Crop_faceTrue_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len30_Median_face_boxFalse_0.72_1.0.csv
+ test Preprocessed Dataset Length: 141
+
+test DataLoader: batch_size=2, num_workers=4, pin_memory=True, persistent_workers=True, prefetch_factor=2
+Wrote reliability analysis to /root/markdown文件/v110_reliability

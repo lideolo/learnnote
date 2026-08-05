@@ -1,0 +1,302 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1180" viewBox="0 0 1800 1180">
+  <defs>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #102a43; }
+      .h1 { font: 700 22px Arial, sans-serif; fill: #102a43; }
+      .h2 { font: 700 18px Arial, sans-serif; fill: #102a43; }
+      .txt { font: 16px Arial, sans-serif; fill: #102a43; }
+      .small { font: 14px Arial, sans-serif; fill: #334e68; }
+      .tiny { font: 12px Arial, sans-serif; fill: #486581; }
+      .box { fill: #fff; stroke: #17365d; stroke-width: 2.2; rx: 8; }
+      .blue { fill: #eef5ff; stroke: #355c8a; stroke-width: 2.2; }
+      .teal { fill: #e3f8f6; stroke: #138a82; stroke-width: 2.4; }
+      .orange { fill: #fff1df; stroke: #d97706; stroke-width: 2.4; }
+      .purple { fill: #f1eafe; stroke: #7653b5; stroke-width: 2.4; }
+      .green { fill: #e8f6ec; stroke: #2f855a; stroke-width: 2.4; }
+      .panel { fill: #fff; stroke: #7b8794; stroke-width: 2.2; stroke-dasharray: 10 8; rx: 18; }
+      .arrow { fill: none; stroke: #172b4d; stroke-width: 2.5; marker-end: url(#arrow); }
+      .arrow-orange { fill: none; stroke: #d97706; stroke-width: 3; marker-end: url(#arrowOrange); }
+      .residual { fill: none; stroke: #5d6d7e; stroke-width: 2; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#172b4d"/>
+    </marker>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#d97706"/>
+    </marker>
+    <clipPath id="faceClip"><ellipse cx="610" cy="202" rx="58" ry="72"/></clipPath>
+  </defs>
+
+  <rect width="1800" height="1180" fill="#ffffff"/>
+  <text x="900" y="42" class="title" text-anchor="middle">Quality-Conditioned Anatomical RhythmMamba</text>
+
+  <!-- Left overview -->
+  <rect x="28" y="66" width="330" height="956" rx="20" fill="#fafcff" stroke="#a9bacd" stroke-width="2"/>
+  <text x="193" y="96" class="h1" text-anchor="middle">Overall Pipeline</text>
+
+  <!-- Video stack -->
+  <g transform="translate(124,112)">
+    <rect x="-16" y="-12" width="138" height="88" rx="5" fill="#d9e6f2" stroke="#17365d" stroke-width="2"/>
+    <rect x="-8" y="-6" width="138" height="88" rx="5" fill="#e8f0f7" stroke="#17365d" stroke-width="2"/>
+    <rect width="138" height="88" rx="5" fill="#eef3f7" stroke="#17365d" stroke-width="2"/>
+    <ellipse cx="69" cy="43" rx="26" ry="31" fill="#d6aa7f"/>
+    <path d="M43 38 Q45 7 70 9 Q98 10 95 39 Q81 22 48 32Z" fill="#3f332b"/>
+    <circle cx="60" cy="42" r="2.5" fill="#223"/><circle cx="79" cy="42" r="2.5" fill="#223"/>
+    <path d="M59 57 Q69 62 80 56" fill="none" stroke="#7c4f3d" stroke-width="2"/>
+  </g>
+  <text x="193" y="224" class="h2" text-anchor="middle">Face Video</text>
+  <path d="M193 232 V258" class="arrow"/>
+
+  <rect x="66" y="264" width="254" height="78" rx="10" class="teal"/>
+  <text x="193" y="295" class="h2" text-anchor="middle">Dynamic Anatomical</text>
+  <text x="193" y="320" class="h2" text-anchor="middle">ROI Stem</text>
+  <path d="M193 342 V374" class="arrow"/>
+
+  <rect x="58" y="380" width="270" height="90" rx="10" class="purple"/>
+  <text x="193" y="414" class="h2" text-anchor="middle">Quality-Conditioned</text>
+  <text x="193" y="440" class="h2" text-anchor="middle">Multi-temporal Mamba</text>
+
+  <rect x="94" y="500" width="198" height="48" rx="6" class="box"/>
+  <text x="193" y="531" class="h2" text-anchor="middle">Add &amp; Norm</text>
+  <path d="M193 470 V500" class="arrow"/>
+  <path d="M77 425 H43 V524 H94" class="residual"/>
+
+  <rect x="64" y="578" width="258" height="82" rx="10" class="blue"/>
+  <text x="193" y="611" class="h2" text-anchor="middle">Frequency Domain</text>
+  <text x="193" y="638" class="h2" text-anchor="middle">Feed-forward</text>
+  <path d="M193 548 V578" class="arrow"/>
+
+  <rect x="94" y="690" width="198" height="48" rx="6" class="box"/>
+  <text x="193" y="721" class="h2" text-anchor="middle">Add &amp; Norm</text>
+  <path d="M193 660 V690" class="arrow"/>
+  <path d="M64 619 H43 V714 H94" class="residual"/>
+
+  <rect x="96" y="776" width="194" height="54" rx="6" class="box"/>
+  <text x="193" y="811" class="h2" text-anchor="middle">Predictor</text>
+  <path d="M193 738 V776" class="arrow"/>
+  <path d="M193 830 V862" class="arrow"/>
+
+  <polyline points="74,932 88,909 101,951 116,885 132,941 149,908 163,952 181,883 196,941 215,905 230,950 248,885 264,938 282,907 303,932"
+            fill="none" stroke="#df1b2f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="193" y="982" font-family="Arial" font-size="24" font-weight="700" fill="#c5162e" text-anchor="middle">rPPG Signal</text>
+
+  <!-- Top panel: Dynamic ROI and quality -->
+  <rect x="390" y="66" width="1380" height="318" rx="18" class="panel"/>
+  <text x="418" y="98" class="h1">1. Dynamic Anatomical ROI + Spatiotemporal Quality Estimation</text>
+
+  <rect x="430" y="132" width="132" height="60" rx="8" class="blue"/>
+  <text x="496" y="169" class="h2" text-anchor="middle">Diff-Fusion</text>
+  <path d="M562 162 H595" class="arrow"/>
+
+  <!-- canonical face -->
+  <g>
+    <ellipse cx="660" cy="213" rx="68" ry="86" fill="#f2c9a5" stroke="#17365d" stroke-width="2.2"/>
+    <path d="M594 198 Q598 118 661 122 Q726 124 728 197 Q703 157 661 157 Q620 157 594 198Z" fill="#4b3b35"/>
+    <circle cx="637" cy="207" r="4" fill="#233"/><circle cx="683" cy="207" r="4" fill="#233"/>
+    <path d="M646 247 Q660 255 676 247" fill="none" stroke="#8b5e4a" stroke-width="2"/>
+    <path d="M660 214 L654 235 L668 235" fill="none" stroke="#9e6c53" stroke-width="1.6"/>
+    <ellipse cx="660" cy="173" rx="28" ry="15" fill="#2fb7aa" fill-opacity="0.62"/>
+    <ellipse cx="626" cy="229" rx="24" ry="19" fill="#47a8e5" fill-opacity="0.62"/>
+    <ellipse cx="694" cy="229" rx="24" ry="19" fill="#47a8e5" fill-opacity="0.62"/>
+    <ellipse cx="660" cy="222" rx="15" ry="25" fill="#f2b84b" fill-opacity="0.65"/>
+    <ellipse cx="660" cy="270" rx="31" ry="14" fill="#9b79d1" fill-opacity="0.58"/>
+    <g fill="#fff" stroke="#138a82" stroke-width="1.4">
+      <circle cx="617" cy="201" r="3"/><circle cx="637" cy="199" r="3"/><circle cx="683" cy="199" r="3"/><circle cx="703" cy="201" r="3"/>
+      <circle cx="660" cy="212" r="3"/><circle cx="635" cy="249" r="3"/><circle cx="685" cy="249" r="3"/><circle cx="660" cy="280" r="3"/>
+    </g>
+  </g>
+  <text x="660" y="322" class="h2" text-anchor="middle">Landmark-aligned ROIs</text>
+  <text x="660" y="344" class="small" text-anchor="middle">canonical anatomy across pose</text>
+  <path d="M728 213 H760" class="arrow"/>
+
+  <!-- tokens -->
+  <g transform="translate(775,133)">
+    <text x="68" y="0" class="h2" text-anchor="middle">ROI Tokens</text>
+    <g transform="translate(0,16)">
+      <rect x="0" y="0" width="22" height="22" rx="3" fill="#2fb7aa"/><rect x="28" y="0" width="22" height="22" rx="3" fill="#2fb7aa"/><rect x="56" y="0" width="22" height="22" rx="3" fill="#2fb7aa"/><rect x="84" y="0" width="22" height="22" rx="3" fill="#2fb7aa"/><text x="120" y="17" class="small">...T</text>
+      <rect x="0" y="34" width="22" height="22" rx="3" fill="#47a8e5"/><rect x="28" y="34" width="22" height="22" rx="3" fill="#47a8e5"/><rect x="56" y="34" width="22" height="22" rx="3" fill="#47a8e5"/><rect x="84" y="34" width="22" height="22" rx="3" fill="#47a8e5"/><text x="120" y="51" class="small">...T</text>
+      <rect x="0" y="68" width="22" height="22" rx="3" fill="#64b5e8"/><rect x="28" y="68" width="22" height="22" rx="3" fill="#64b5e8"/><rect x="56" y="68" width="22" height="22" rx="3" fill="#64b5e8"/><rect x="84" y="68" width="22" height="22" rx="3" fill="#64b5e8"/><text x="120" y="85" class="small">...T</text>
+      <rect x="0" y="102" width="22" height="22" rx="3" fill="#f2b84b"/><rect x="28" y="102" width="22" height="22" rx="3" fill="#f2b84b"/><rect x="56" y="102" width="22" height="22" rx="3" fill="#f2b84b"/><rect x="84" y="102" width="22" height="22" rx="3" fill="#f2b84b"/><text x="120" y="119" class="small">...T</text>
+      <rect x="0" y="136" width="22" height="22" rx="3" fill="#9b79d1"/><rect x="28" y="136" width="22" height="22" rx="3" fill="#9b79d1"/><rect x="56" y="136" width="22" height="22" rx="3" fill="#9b79d1"/><rect x="84" y="136" width="22" height="22" rx="3" fill="#9b79d1"/><text x="120" y="153" class="small">...T</text>
+    </g>
+  </g>
+  <path d="M920 213 H955" class="arrow"/>
+
+  <!-- Quality estimator -->
+  <rect x="965" y="121" width="326" height="220" rx="12" class="orange"/>
+  <text x="1128" y="151" class="h2" text-anchor="middle">Spatiotemporal Quality Estimator</text>
+  <rect x="991" y="170" width="126" height="44" rx="7" fill="#fff" stroke="#d97706" stroke-width="1.8"/>
+  <text x="1054" y="198" class="txt" text-anchor="middle">Motion</text>
+  <rect x="1138" y="170" width="126" height="44" rx="7" fill="#fff" stroke="#d97706" stroke-width="1.8"/>
+  <text x="1201" y="198" class="txt" text-anchor="middle">Specular</text>
+  <rect x="991" y="227" width="126" height="44" rx="7" fill="#fff" stroke="#d97706" stroke-width="1.8"/>
+  <text x="1054" y="255" class="txt" text-anchor="middle">Illumination</text>
+  <rect x="1138" y="227" width="126" height="44" rx="7" fill="#fff" stroke="#d97706" stroke-width="1.8"/>
+  <text x="1201" y="255" class="txt" text-anchor="middle">Spectral SNR</text>
+  <rect x="1012" y="289" width="232" height="35" rx="6" fill="#fff" stroke="#d97706" stroke-width="1.8"/>
+  <text x="1128" y="312" class="small" text-anchor="middle">+ Background Reference</text>
+  <path d="M1291 231 H1330" class="arrow-orange"/>
+
+  <!-- heatmap -->
+  <g transform="translate(1344,126)">
+    <text x="126" y="22" class="h2" fill="#b45309" text-anchor="middle">Q(t,r)</text>
+    <text x="126" y="42" class="small" text-anchor="middle">time × ROI reliability</text>
+    <g transform="translate(8,56)">
+      <rect x="0" y="0" width="28" height="28" fill="#2f855a"/><rect x="30" y="0" width="28" height="28" fill="#56a86f"/><rect x="60" y="0" width="28" height="28" fill="#e4a13a"/><rect x="90" y="0" width="28" height="28" fill="#d97706"/><rect x="120" y="0" width="28" height="28" fill="#58a970"/><rect x="150" y="0" width="28" height="28" fill="#2f855a"/><rect x="180" y="0" width="28" height="28" fill="#5aac72"/><rect x="210" y="0" width="28" height="28" fill="#d89a36"/>
+      <rect x="0" y="30" width="28" height="28" fill="#5aac72"/><rect x="30" y="30" width="28" height="28" fill="#2f855a"/><rect x="60" y="30" width="28" height="28" fill="#d97706"/><rect x="90" y="30" width="28" height="28" fill="#c2413a"/><rect x="120" y="30" width="28" height="28" fill="#d97706"/><rect x="150" y="30" width="28" height="28" fill="#57a96f"/><rect x="180" y="30" width="28" height="28" fill="#2f855a"/><rect x="210" y="30" width="28" height="28" fill="#57a96f"/>
+      <rect x="0" y="60" width="28" height="28" fill="#2f855a"/><rect x="30" y="60" width="28" height="28" fill="#4c9f66"/><rect x="60" y="60" width="28" height="28" fill="#57a96f"/><rect x="90" y="60" width="28" height="28" fill="#d79a38"/><rect x="120" y="60" width="28" height="28" fill="#d97706"/><rect x="150" y="60" width="28" height="28" fill="#2f855a"/><rect x="180" y="60" width="28" height="28" fill="#2f855a"/><rect x="210" y="60" width="28" height="28" fill="#56a86f"/>
+      <rect x="0" y="90" width="28" height="28" fill="#d99b38"/><rect x="30" y="90" width="28" height="28" fill="#d97706"/><rect x="60" y="90" width="28" height="28" fill="#c2413a"/><rect x="90" y="90" width="28" height="28" fill="#d97706"/><rect x="120" y="90" width="28" height="28" fill="#56a86f"/><rect x="150" y="90" width="28" height="28" fill="#2f855a"/><rect x="180" y="90" width="28" height="28" fill="#57a96f"/><rect x="210" y="90" width="28" height="28" fill="#2f855a"/>
+      <rect x="0" y="120" width="28" height="28" fill="#2f855a"/><rect x="30" y="120" width="28" height="28" fill="#2f855a"/><rect x="60" y="120" width="28" height="28" fill="#56a86f"/><rect x="90" y="120" width="28" height="28" fill="#d99b38"/><rect x="120" y="120" width="28" height="28" fill="#d97706"/><rect x="150" y="120" width="28" height="28" fill="#57a96f"/><rect x="180" y="120" width="28" height="28" fill="#2f855a"/><rect x="210" y="120" width="28" height="28" fill="#2f855a"/>
+    </g>
+    <text x="126" y="235" class="tiny" text-anchor="middle">green: reliable   red: corrupted</text>
+  </g>
+
+  <!-- Middle panel: Q-controlled Mamba -->
+  <rect x="390" y="402" width="1380" height="340" rx="18" class="panel"/>
+  <text x="418" y="436" class="h1">2. Quality-Conditioned Multi-temporal State Control</text>
+  <rect x="431" y="488" width="116" height="160" rx="8" class="teal"/>
+  <text x="489" y="553" class="h2" text-anchor="middle">ROI</text>
+  <text x="489" y="578" class="h2" text-anchor="middle">Token</text>
+  <text x="489" y="603" class="h2" text-anchor="middle">Slice</text>
+
+  <!-- q source -->
+  <rect x="818" y="452" width="128" height="44" rx="8" class="orange"/>
+  <text x="882" y="481" class="h2" text-anchor="middle">Q(t,r)</text>
+
+  <!-- branch 1 -->
+  <path d="M547 520 H596" class="arrow"/>
+  <g transform="translate(596,493)">
+    <rect x="0" y="0" width="178" height="54" rx="7" class="blue"/>
+    <text x="89" y="23" class="small" text-anchor="middle">1  2  3  ...  T</text>
+    <text x="89" y="44" class="small" text-anchor="middle">T ×1</text>
+  </g>
+  <path d="M774 520 H818" class="arrow"/>
+  <rect x="818" y="503" width="94" height="42" rx="7" class="blue"/>
+  <text x="865" y="530" class="txt" text-anchor="middle">Conv</text>
+  <path d="M912 524 H968" class="arrow"/>
+  <circle cx="986" cy="524" r="17" fill="#fff1df" stroke="#d97706" stroke-width="2.5"/>
+  <text x="986" y="530" class="h2" text-anchor="middle">q</text>
+  <path d="M1003 524 H1033" class="arrow"/>
+  <rect x="1033" y="497" width="236" height="56" rx="8" class="purple"/>
+  <text x="1151" y="532" class="h2" text-anchor="middle">Q-Controlled SSM</text>
+
+  <!-- branch 2 -->
+  <path d="M547 571 H596" class="arrow"/>
+  <g transform="translate(596,544)">
+    <rect x="0" y="0" width="178" height="54" rx="7" class="blue"/>
+    <text x="89" y="23" class="small" text-anchor="middle">1  2  3  ...  T/2</text>
+    <text x="89" y="44" class="small" text-anchor="middle">T/2 ×2</text>
+  </g>
+  <path d="M774 571 H818" class="arrow"/>
+  <rect x="818" y="550" width="94" height="42" rx="7" class="blue"/>
+  <text x="865" y="577" class="txt" text-anchor="middle">Conv</text>
+  <path d="M912 571 H968" class="arrow"/>
+  <circle cx="986" cy="571" r="17" fill="#fff1df" stroke="#d97706" stroke-width="2.5"/>
+  <text x="986" y="577" class="h2" text-anchor="middle">q</text>
+  <path d="M1003 571 H1033" class="arrow"/>
+  <rect x="1033" y="544" width="236" height="56" rx="8" class="purple"/>
+  <text x="1151" y="579" class="h2" text-anchor="middle">Q-Controlled SSM</text>
+
+  <!-- branch 3 -->
+  <path d="M547 622 H596" class="arrow"/>
+  <g transform="translate(596,595)">
+    <rect x="0" y="0" width="178" height="54" rx="7" class="blue"/>
+    <text x="89" y="23" class="small" text-anchor="middle">1  2  3  ...  T/4</text>
+    <text x="89" y="44" class="small" text-anchor="middle">T/4 ×4</text>
+  </g>
+  <path d="M774 622 H818" class="arrow"/>
+  <rect x="818" y="601" width="94" height="42" rx="7" class="blue"/>
+  <text x="865" y="628" class="txt" text-anchor="middle">Conv</text>
+  <path d="M912 622 H968" class="arrow"/>
+  <circle cx="986" cy="622" r="17" fill="#fff1df" stroke="#d97706" stroke-width="2.5"/>
+  <text x="986" y="628" class="h2" text-anchor="middle">q</text>
+  <path d="M1003 622 H1033" class="arrow"/>
+  <rect x="1033" y="595" width="236" height="56" rx="8" class="purple"/>
+  <text x="1151" y="630" class="h2" text-anchor="middle">Q-Controlled SSM</text>
+
+  <!-- Q arrows -->
+  <path d="M882 496 V507" class="arrow-orange"/>
+  <path d="M942 474 H986 V507" class="arrow-orange"/>
+  <path d="M950 474 H1008 V571 H1003" class="arrow-orange"/>
+  <path d="M950 474 H1018 V622 H1003" class="arrow-orange"/>
+
+  <!-- consensus -->
+  <path d="M1269 525 H1322 V571 H1354" class="arrow"/>
+  <path d="M1269 572 H1354" class="arrow"/>
+  <path d="M1269 623 H1322 V572" class="arrow"/>
+  <rect x="1354" y="525" width="184" height="96" rx="10" class="teal"/>
+  <text x="1446" y="562" class="h2" text-anchor="middle">ROI</text>
+  <text x="1446" y="589" class="h2" text-anchor="middle">Consensus</text>
+  <path d="M1538 573 H1602" class="arrow"/>
+  <circle cx="1624" cy="573" r="22" fill="#fff" stroke="#17365d" stroke-width="2.5"/>
+  <text x="1624" y="581" font-family="Arial" font-size="30" fill="#17365d" text-anchor="middle">+</text>
+  <path d="M1646 573 H1714" class="arrow"/>
+  <path d="M547 676 H1624 V595" class="residual"/>
+
+  <rect x="835" y="674" width="410" height="42" rx="8" fill="#f8f5ff" stroke="#7653b5" stroke-width="1.8"/>
+  <circle cx="864" cy="695" r="7" fill="#2f855a"/><text x="880" y="700" class="small">high q: selective write</text>
+  <circle cx="1057" cy="695" r="7" fill="#c2413a"/><text x="1073" y="700" class="small">low q: selective forget</text>
+  <text x="1446" y="695" class="h2" fill="#7653b5" text-anchor="middle">Selective Write / Forget</text>
+
+  <!-- Bottom panel: frequency and supervision -->
+  <rect x="390" y="760" width="1380" height="262" rx="18" class="panel"/>
+  <text x="418" y="794" class="h1">3. Frequency-domain Refinement + Physiology Supervision</text>
+
+  <!-- wave 1 -->
+  <polyline points="440,906 452,891 464,918 476,874 488,910 500,889 512,920 524,878 536,908 548,891 560,915"
+            fill="none" stroke="#52697f" stroke-width="2.5"/>
+  <text x="500" y="950" class="small" text-anchor="middle">Temporal Domain</text>
+  <path d="M566 900 H626" class="arrow"/>
+  <text x="596" y="889" class="h2" text-anchor="middle">FFT</text>
+  <polyline points="644,919 656,917 668,915 680,906 692,874 704,909 716,916 728,918 740,919"
+            fill="none" stroke="#8b6d5c" stroke-width="2.5"/>
+  <text x="692" y="950" class="small" text-anchor="middle">Frequency Domain</text>
+  <path d="M748 900 H806" class="arrow"/>
+
+  <rect x="806" y="851" width="292" height="86" rx="10" class="blue"/>
+  <text x="952" y="887" class="h2" text-anchor="middle">Frequency Domain</text>
+  <text x="952" y="914" class="h2" text-anchor="middle">Channel Interaction</text>
+  <path d="M1098 900 H1156" class="arrow"/>
+  <text x="1127" y="889" class="h2" text-anchor="middle">IFFT</text>
+  <polyline points="1170,906 1182,891 1194,918 1206,874 1218,910 1230,889 1242,920 1254,878 1266,908 1278,891 1290,915"
+            fill="none" stroke="#52697f" stroke-width="2.5"/>
+  <text x="1230" y="950" class="small" text-anchor="middle">Temporal Domain</text>
+
+  <path d="M1295 900 H1345" class="arrow"/>
+  <rect x="1345" y="814" width="384" height="178" rx="12" class="green"/>
+  <text x="1537" y="846" class="h2" fill="#276749" text-anchor="middle">Physiology Supervision</text>
+  <rect x="1373" y="864" width="152" height="42" rx="6" fill="#fff" stroke="#2f855a" stroke-width="1.6"/>
+  <text x="1449" y="891" class="txt" text-anchor="middle">NegPearson</text>
+  <rect x="1544" y="864" width="152" height="42" rx="6" fill="#fff" stroke="#2f855a" stroke-width="1.6"/>
+  <text x="1620" y="891" class="txt" text-anchor="middle">Freq CE/KL</text>
+  <rect x="1373" y="922" width="152" height="42" rx="6" fill="#fff" stroke="#2f855a" stroke-width="1.6"/>
+  <text x="1449" y="949" class="txt" text-anchor="middle">Temporal Relation</text>
+  <rect x="1544" y="922" width="152" height="42" rx="6" fill="#fff" stroke="#2f855a" stroke-width="1.6"/>
+  <text x="1620" y="940" class="small" text-anchor="middle">Quality-weighted</text>
+  <text x="1620" y="957" class="small" text-anchor="middle">ROI Phase</text>
+
+  <!-- Ablation progression -->
+  <text x="38" y="1074" class="h1">Ablation Path</text>
+  <rect x="250" y="1040" width="210" height="58" rx="8" class="blue"/>
+  <text x="355" y="1076" class="h2" text-anchor="middle">A0 Baseline</text>
+  <path d="M460 1069 H500" class="arrow"/>
+  <rect x="500" y="1040" width="240" height="58" rx="8" class="teal"/>
+  <text x="620" y="1076" class="h2" text-anchor="middle">A1 + Dynamic ROI</text>
+  <path d="M740 1069 H780" class="arrow"/>
+  <rect x="780" y="1040" width="220" height="58" rx="8" class="orange"/>
+  <text x="890" y="1076" class="h2" text-anchor="middle">A2 + Quality</text>
+  <path d="M1000 1069 H1040" class="arrow"/>
+  <rect x="1040" y="1040" width="250" height="58" rx="8" class="purple"/>
+  <text x="1165" y="1076" class="h2" text-anchor="middle">A3 + State Control</text>
+  <path d="M1290 1069 H1330" class="arrow"/>
+  <rect x="1330" y="1040" width="210" height="58" rx="8" class="green"/>
+  <text x="1435" y="1076" class="h2" text-anchor="middle">A4 Full</text>
+
+  <!-- Legend -->
+  <rect x="250" y="1122" width="20" height="20" rx="3" fill="#eef5ff" stroke="#355c8a" stroke-width="2"/><text x="280" y="1138" class="small">Original backbone</text>
+  <rect x="470" y="1122" width="20" height="20" rx="3" fill="#e3f8f6" stroke="#138a82" stroke-width="2"/><text x="500" y="1138" class="small">Dynamic ROI</text>
+  <rect x="660" y="1122" width="20" height="20" rx="3" fill="#fff1df" stroke="#d97706" stroke-width="2"/><text x="690" y="1138" class="small">Quality estimation</text>
+  <rect x="900" y="1122" width="20" height="20" rx="3" fill="#f1eafe" stroke="#7653b5" stroke-width="2"/><text x="930" y="1138" class="small">State control</text>
+  <rect x="1090" y="1122" width="20" height="20" rx="3" fill="#e8f6ec" stroke="#2f855a" stroke-width="2"/><text x="1120" y="1138" class="small">Supervision</text>
+  <text x="1700" y="1138" class="tiny" text-anchor="end">Concept architecture for subsequent experiments</text>
+</svg>
